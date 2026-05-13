@@ -1,82 +1,148 @@
-import java.util.ArrayList;
-import java.util.List;
+/**
+ * Node.java
+ *
+ * Represents a single node in a ternary tree file system.
+ *
+ * Ternary tree structure:
+ *   - left:   first child (eldest child of this directory)
+ *   - middle: next sibling (peer at the same level)
+ *   - right:  previous sibling (peer at the same level, reverse link)
+ *
+ * This mirrors the classic "left-child right-sibling" pattern extended
+ * to a ternary form: left = first child, middle = next sibling, right = prev sibling.
+ * It supports arbitrary numbers of children while staying a true ternary tree.
+ */
+public class Node {
 
-class Node {
-    private String name;
-    private List<Node> children;
+    // ── Core identity ─────────────────────────────────────────────────
+    private String  name;
     private boolean isDirectory;
+    private String  content;       // Only meaningful for file nodes
+    private long    createdAt;     // Epoch ms — for metadata display
+    private long    modifiedAt;
+
+    // ── Ternary tree pointers ─────────────────────────────────────────
+    private Node left;    // First child
+    private Node middle;  // Next sibling
+    private Node right;   // Prev sibling
     private Node parent;
-    private String content; // Added for file content
+
+    // ─────────────────────────────────────────────────────────────────
+    // Construction
+    // ─────────────────────────────────────────────────────────────────
 
     public Node(String name, boolean isDirectory) {
-        this.name = name;
+        this.name        = name;
         this.isDirectory = isDirectory;
-        this.children = isDirectory ? new ArrayList<>() : null;
-        this.parent = null;
-        this.content = ""; // Initialize content for files
+        this.content     = "";
+        this.createdAt   = System.currentTimeMillis();
+        this.modifiedAt  = this.createdAt;
     }
 
-    public String getName() {
-        return name;
+    // ─────────────────────────────────────────────────────────────────
+    // Child management  (ternary left-child / right-sibling with prev)
+    // ─────────────────────────────────────────────────────────────────
+
+    public void addChild(Node child) {
+        if (!isDirectory) return;
+
+        child.parent = this;
+
+        if (left == null) {
+            left = child;
+        } else {
+            Node cursor = left;
+            while (cursor.middle != null) {
+                cursor = cursor.middle;
+            }
+            cursor.middle = child;   
+            child.right   = cursor;  
+        }
+        modifiedAt = System.currentTimeMillis();
     }
 
-    public List<Node> getChildren() {
-        return children;
-    }
+    public void removeChild(Node child) {
+        if (!isDirectory || left == null) return;
 
-    public boolean hasChildren() {
-        return children != null && !children.isEmpty();
+        if (left == child) {
+            left = child.middle;
+            if (left != null) left.right = null;
+        } else {
+            Node prev = child.right;
+            Node next = child.middle;
+            if (prev != null) prev.middle = next;
+            if (next != null) next.right  = prev;
+        }
+
+        child.parent = null;
+        child.middle = null;
+        child.right  = null;
+        modifiedAt   = System.currentTimeMillis();
     }
 
     public Node getChildByName(String name) {
-        if (children != null) {
-            for (Node child : children) {
-                if (child.getName().equals(name)) {
-                    return child;
-                }
-            }
+        Node cursor = left;
+        while (cursor != null) {
+            if (cursor.name.equals(name)) return cursor;
+            cursor = cursor.middle;
         }
         return null;
     }
 
-    public void addChild(Node child) {
-        if (children != null) {
-            children.add(child);
-            child.setParent(this); // Set the parent of the child node
+    public boolean hasChildren() {
+        return left != null;
+    }
+
+    public void forEachChild(java.util.function.Consumer<Node> visitor) {
+        Node cursor = left;
+        while (cursor != null) {
+            visitor.accept(cursor);
+            cursor = cursor.middle;
         }
     }
 
-    public void removeChild(Node child) {
-        if (children != null) {
-            children.remove(child);
+    // ─────────────────────────────────────────────────────────────────
+    // File content
+    // ─────────────────────────────────────────────────────────────────
+
+    public void writeContent(String text) {
+        if (!isDirectory) {
+            this.content   = text;
+            this.modifiedAt = System.currentTimeMillis();
         }
     }
 
-    public boolean isDirectory() {
-        return isDirectory;
-    }
-
-    public Node getParent() {
-        return parent;
-    }
-
-    private void setParent(Node parent) {
-        this.parent = parent;
-    }
-
-    // Getter and setter for content
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    // Method to write content to the file
-    public void writeContent(String content) {
-        if (!isDirectory) { // Only allow writing if it's not a directory
-            this.content = content;
+    public void appendContent(String text) {
+        if (!isDirectory) {
+            this.content   = this.content + text;
+            this.modifiedAt = System.currentTimeMillis();
         }
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    // Accessors
+    // ─────────────────────────────────────────────────────────────────
+
+    public String  getName()       { return name; }
+    public boolean isDirectory()   { return isDirectory; }
+    public String  getContent()    { return content; }
+    public Node    getParent()     { return parent; }
+    public Node    getLeft()       { return left; }    // first child
+    public Node    getMiddle()     { return middle; }  // next sibling
+    public Node    getRight()      { return right; }   // prev sibling
+    public long    getCreatedAt()  { return createdAt; }
+    public long    getModifiedAt() { return modifiedAt; }
+
+    public String stat() {
+        java.text.SimpleDateFormat sdf =
+            new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return String.format(
+            "  Name    : %s%n  Type    : %s%n  Created : %s%n  Modified: %s%s",
+            name,
+            isDirectory ? "Directory" : "File",
+            sdf.format(new java.util.Date(createdAt)),
+            sdf.format(new java.util.Date(modifiedAt)),
+            isDirectory ? "" : String.format("%n  Size    : %d bytes", content.length())
+        );
     }
 }

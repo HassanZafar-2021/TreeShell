@@ -1,8 +1,8 @@
-# TernaryTreeDirectory
+# TreeShell
 
 ## Description
 
-TernaryTreeDirectory is a command-line interface program designed to simulate a file explorer tree, providing users with an interactive way to practice working with directories and files. The program supports various basic commands such as ls, pwd, mkdir, touch, write, cat, and cd. It mimics the functionality of a real file system while demonstrating the data structure concept of ternary trees.
+TreeShell is a command-line interface program designed to simulate a file explorer tree, providing users with an interactive way to practice working with directories and files. The program supports various basic commands such as ls, pwd, mkdir, touch, write, cat, and cd. It mimics the functionality of a real file system while demonstrating the data structure concept of ternary trees.
 
 ## Table of Contents (Optional)
 
