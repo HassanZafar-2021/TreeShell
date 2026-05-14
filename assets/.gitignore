@@ -1,0 +1,10 @@
+# Compiled class files
+*.class
+
+# VS Code
+.vscode/
+
+# MacOS
+.DS_Store
+
+.gitattributes

@@ -2,9 +2,11 @@
 
 ## Description
 
-TreeShell is a command-line interface program designed to simulate a file explorer tree, providing users with an interactive way to practice working with directories and files. The program supports various basic commands such as ls, pwd, mkdir, touch, write, cat, and cd. It mimics the functionality of a real file system while demonstrating the data structure concept of ternary trees.
+TreeShell is a Java-based command-line interface that simulates an interactive file system backed by a **ternary tree data structure**. Each node in the tree represents either a directory or a file, with three typed pointers — first child, next sibling, and previous sibling — forming a true ternary structure under the hood.
 
-## Table of Contents (Optional)
+The project goes beyond a basic file system simulation by supporting multi-level path navigation, file content persistence, session saving and loading, recursive removal, copy/move operations, and a color-coded terminal UI. It's designed as both a practical learning tool for data structures and a portfolio-worthy CLI application.
+
+## Table of Contents
 
 - [Description](#description)
 - [Installation](#installation)
@@ -13,73 +15,121 @@ TreeShell is a command-line interface program designed to simulate a file explor
 - [License](#license)
 - [Badges](#badges)
 - [Features](#features)
-- [Contribute](#how-to-contribute)
-- [Video](#video)
+- [How to Contribute](#how-to-contribute)
 
 ## Installation
 
-To set up the project, follow these steps:
+**Prerequisites:** Java Development Kit (JDK) 11 or higher.
 
-Download and install the Java Development Kit (JDK).
+**1. Clone the repository:**
+```bash
+git clone https://github.com/HassanZafar-2021/TreeShell.git
+cd TreeShell
+```
 
-Install the official Java extension for Visual Studio Code (VSCode).
+**2. Compile all source files:**
+```bash
+javac Node.java Tree.java BashTerminal.java
+```
+
+**3. Run the program:**
+```bash
+java BashTerminal
+```
+
+No external libraries or build tools required — pure Java, zero dependencies.
+
+**Optional:** If you're using Visual Studio Code, install the [Extension Pack for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack) and use the built-in Run button instead.
 
 ## Usage
 
-To start using TernaryTreeDirectory, run the program in your terminal and use the available commands to navigate and manipulate the simulated file system.
+On startup, TreeShell displays an ASCII banner and renders the current tree structure. From there, type any supported command at the prompt.
 
-![alt text](assets/image.png)
+The prompt always shows your current absolute path:
+
+```
+/root/home/projects $
+```
+
+**Quick example session:**
+```bash
+/root $ mkdir home/projects        # create nested directories in one command
+/root $ cd home/projects
+/root/home/projects $ touch notes.txt
+/root/home/projects $ write notes.txt My first TreeShell session
+/root/home/projects $ cat notes.txt
+My first TreeShell session
+/root/home/projects $ save mysession
+  ✔ Session saved to mysession.ttd
+/root/home/projects $ exit
+
+# Next session — restore everything exactly as you left it:
+/root $ load mysession
+  ✔ Loaded 3 nodes from mysession.ttd
+```
+
+![alt text](./assets/screenshot.png)
+
 
 ## Credits
 
-This project was developed independently and has no collaborators.
+Developed by Hassan. No collaborators.
 
 ## License
 
-This project currently does not have a license. Feel free to use and modify it as needed.
+This project does not currently have a license. Feel free to use and modify it as needed.
 
 ## Badges
 
 ![Java](https://img.shields.io/badge/Java-007396?style=for-the-badge&logo=java&logoColor=white)
+![Status](https://img.shields.io/badge/status-active-brightgreen?style=for-the-badge)
+![Data Structure](https://img.shields.io/badge/data--structure-ternary--tree-blueviolet?style=for-the-badge)
 
 ## Features
 
-Basic File System Commands: Supports commands such as:
+**Ternary Tree Core**
+- Every node carries exactly three typed pointers: `left` (first child), `middle` (next sibling), `right` (previous sibling) — a genuine ternary tree, not a disguised list
 
-pwd: Displays the current directory path.
+**Navigation**
+- `pwd` — print absolute working directory path
+- `cd <path>` — change directory; supports `..`, `~`, absolute paths (`/root/home`), and multi-segment paths (`a/b/c`)
 
-ls: Lists files and directories in the current directory.
+**Listing & Visualization**
+- `ls [path]` — list directory contents with type and file size
+- `tree [path]` — render the full ternary tree with `├──` / `└──` connectors, color-coded by node type
 
-mkdir: Creates a new directory.
+**Creation**
+- `mkdir <path>` — create a directory; automatically creates intermediate directories
+- `touch <file>` — create an empty file
 
-touch: Creates a new file.
+**File I/O**
+- `write <file> <content>` — overwrite a file's content
+- `append <file> <content>` — append content to a file (like `>>` redirect)
+- `cat <file>` — display file content
 
-write: Writes content to a file.
+**Metadata**
+- `stat <name>` — display name, type, creation time, last modified time, and file size
 
-cat: Displays the content of a file.
+**Copy / Move / Delete**
+- `cp <src> <dst>` — copy a file to a new location or name
+- `mv <src> <dst>` — move or rename a file or directory
+- `rm [-r] <name>` — remove a file; use `-r` for non-empty directories
 
-cd: Changes the current directory.
+**Session Persistence**
+- `save <filename>` — serialize the entire tree to a human-readable `.ttd` file
+- `load <filename>` — reconstruct a previously saved session from a `.ttd` file
 
-Ternary Tree Structure: Simulates a ternary tree for managing directories and files, offering a unique learning opportunity for data structures enthusiasts.
+**Search & Utility**
+- `find <query>` — search all nodes by name (case-insensitive, searches full tree)
+- `history` — display all commands entered this session
+- `clear` — clear the terminal screen
+- `help` — display the full command reference
 
 ## How to Contribute
 
-If you'd like to contribute:
-
-Fork this repository.
-
-Clone the forked repository to your local machine.
-
-Create a new branch for your feature or fix.
-
-Commit your changes and push them to your branch.
-
-Open a pull request to submit your contributions.
-
-## Tests
-
-To run tests, create a tests folder and use the following command: npm test
-
-## Video
-
-https://youtu.be/-WQPwI1RrhU
+1. Fork this repository
+2. Clone your fork: `git clone https://github.com/your-username/TreeShell.git`
+3. Create a feature branch: `git checkout -b feature/your-feature-name`
+4. Commit your changes: `git commit -m "Add your feature"`
+5. Push to your branch: `git push origin feature/your-feature-name`
+6. Open a pull request
